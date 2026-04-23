@@ -522,7 +522,7 @@
             <select id="groupCount" onchange="adjustGroups()">
                 <option value="2">2組</option>
                 <option value="3">3組</option>
-                <option value="4" selected>4組</option>
+                <option value="4">4組</option>
                 <option value="5">5組</option>
                 <option value="6">6組</option>
                 <option value="7">7組</option>
@@ -907,96 +907,16 @@
             });
         }
 
-        // 初始化
+        // 初始化時清空全局存儲
         window.addEventListener('load', function() {
             globalInputData = {
                 values: {},
                 toggleStates: {}
             };
-            
-            // Set default group count to 5
-            document.getElementById('groupCount').value = '4';
-            
-            // Set initial names and gender states
-            const initialNames = [
-                'ZengYanYun', '莊彥威', '羅宇謙', 'リュウ ウェイイ', 'LIN YU HONG',
-                '深澤𧙗美', 'LIU HUNG YU', '東山咲穂', 'Antonio Chen', 'LIN',
-                'チョウ ミャオ', '峰和義', '砂原茜', 'zhang yan', '來陽陽',
-                'zhang lu '
-            ];
-            const initialGenders = [
-                false, false, false, true, false,
-                true, false, true, false, false,
-                true, false, true, true, true,
-                true
-            ];
-            
-            adjustGroups();
-            
-            // Set the names and toggle states
-            initialNames.forEach((name, index) => {
-                const input = document.getElementById('name' + (index + 1));
-                const toggle = document.getElementById('toggle' + (index + 1));
-                if (input && toggle) {
-                    input.value = name;
-                    if (initialGenders[index]) {
-                        toggle.classList.add('red');
-                    }
-                    globalInputData.values[index + 1] = name;
-                    globalInputData.toggleStates[index + 1] = initialGenders[index];
-                }
-            });
-            
-            // Override the random grouping function
-            window.startRandomGrouping = function() {
-                if (isRunning) return;
-                isRunning = true;
-                
-                                const finalOrder = [
-                    'チョウ ミャオ', 'LIN', 'リュウ ウェイイ', '峰和義', '羅宇謙',
-                    '東山咲穂', '來陽陽', '莊彥威', 'LIN YU HONG', 'zhang lu ',
-                    'ZengYanYun', '砂原茜', 'LIU HUNG YU', 'zhang yan', '深澤𧙗美',
-                    'Antonio Chen'
-                ];
-                
-                showPopup();
-                
-                // Animation effect
-                let animationCount = 0;
-                interval = setInterval(() => {
-                    let shuffledNames = [...initialNames];
-                    shuffledNames = shuffledNames.sort(() => Math.random() - 0.5);
-                    finalizeGrouping(shuffledNames, 16, [], 4, false, getGenderInfo());
-                    animationCount++;
-                }, 100);
-                
-                // Stop animation and show final result after 2 seconds
-                stopTimeout = setTimeout(() => {
-                    clearInterval(interval);
-                    // Create groups of 4 from the final order
-                    const groups = [];
-                    for (let i = 0; i < finalOrder.length; i += 4) {
-                        groups.push(finalOrder.slice(i, i + 4));
-                    }
-                    updateTables(groups, 16, true, finalOrder, getGenderInfo());
-                    
-                    // After 3 seconds, update main table and hide popup
-                    setTimeout(() => {
-                        updateTables(groups, 16, false, finalOrder, getGenderInfo());
-                        hidePopup();
-                        isRunning = false;
-                    }, 3000);
-                }, 2000);
-            };
-            
-            function getGenderInfo() {
-                const genderInfo = {};
-                initialNames.forEach((name, index) => {
-                    genderInfo[name] = initialGenders[index] ? 'female' : 'male';
-                });
-                return genderInfo;
-            }
         });
+
+        // 初始化
+        adjustGroups();
     </script>
 </body>
 </html>
