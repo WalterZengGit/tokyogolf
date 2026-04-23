@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>東京高爾夫分組系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1B4D3E;
+            --secondary-color: #326355;
+            --accent-color: #7BA05B;
+            --background-color: #F4F6F4;
+            --card-color: #FFFFFF;
+            --text-color: #2C3E2D;
+            --input-bg: #F8FAF8;
+            --button-text: #FFFFFF;
+            --border-color: #E2E8E2;
+            --toggle-blue: #3498db;
+            --toggle-red: #e74c3c;
+            --male-bg: rgba(52, 152, 219, 0.15);
+            --female-bg: rgba(231, 76, 60, 0.15);
+            --male-border: rgba(52, 152, 219, 0.3);
+            --female-border: rgba(231, 76, 60, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 2rem 0 2.5rem;
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            background: var(--card-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .inputs-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+            width: 100%;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        input {
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(123, 160, 91, 0.2);
+        }
+
+        select {
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        select:hover {
+            border-color: var(--accent-color);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--button-text);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 24px;
+            margin: 0.5rem 0;
+            min-height: 48px;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(27, 77, 62, 0.2);
+        }
+
+        table {
+            width: 100%;
+            margin: 1rem 0;
+            border-collapse: separate;
+            border-spacing: 0.5rem;
+            table-layout: fixed;
+        }
+
+        td {
+            padding: 0.5rem;
+            text-align: center;
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            word-break: break-all;
+            overflow: hidden;
+            height: 50px;
+            vertical-align: middle;
+            transition: background-color 0.3s ease;
+        }
+
+        td.male {
+            background-color: var(--male-bg);
+            border-color: var(--male-border);
+        }
+
+        td.female {
+            background-color: var(--female-bg);
+            border-color: var(--female-border);
+        }
+
+        td:hover {
+            background: var(--input-bg);
+        }
+
+        .conditions-container {
+            margin-top: 2rem;
+        }
+
+        .condition-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            width: 100%;
+            align-items: center;
+        }
+
+        .condition-row select {
+            flex: 1;
+            min-width: 0; /* 防止 select 溢出 */
+        }
+
+        .condition-row button {
+            width: auto;
+            white-space: nowrap;
+        }
+
+        .popup-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background: var(--card-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        .overlay-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .popup-card.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .overlay-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 0.5rem;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .inputs-container {
+                gap: 0.75rem;
+                margin: 1rem 0;
+                max-height: 60vh;
+            }
+
+            input, select, button {
+                font-size: 0.85rem;
+                padding: 0.4rem;
+                width: 100%;
+                min-width: 0;
+            }
+
+            td {
+                font-size: 0.85rem;
+                padding: 0.4rem;
+                height: 45px;
+                max-width: none;
+            }
+
+            .popup-card {
+                width: 95%;
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+                margin: 1.5rem 0 2rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            button {
+                padding: 10px 20px;
+                min-height: 44px;
+            }
+
+            .condition-row {
+                gap: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .toggle-switch {
+                width: 40px;
+                height: 20px;
+            }
+
+            .toggle-switch::before {
+                width: 16px;
+                height: 16px;
+            }
+
+            .toggle-switch.red::before {
+                transform: translateX(20px);
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .container {
+                padding: 0.25rem;
+            }
+
+            .inputs-container {
+                gap: 0.5rem;
+                max-height: 50vh;
+                padding-right: 0.5rem;
+            }
+
+            input, select, button {
+                font-size: 0.8rem;
+                padding: 0.3rem;
+            }
+
+            td {
+                font-size: 0.8rem;
+                padding: 0.3rem;
+                height: 40px;
+            }
+
+            .popup-card {
+                width: 98%;
+                padding: 0.75rem;
+            }
+
+            .toggle-switch {
+                width: 36px;
+                height: 18px;
+            }
+
+            .toggle-switch::before {
+                width: 14px;
+                height: 14px;
+            }
+
+            .toggle-switch.red::before {
+                transform: translateX(18px);
+            }
+        }
+
+        @media screen and (max-width: 360px) {
+            .container {
+                padding: 0.2rem;
+            }
+
+            .inputs-container {
+                gap: 0.2rem;
+            }
+
+            input, select, button {
+                font-size: 0.75rem;
+                padding: 0.3rem;
+            }
+
+            td {
+                padding: 0.3rem;
+                font-size: 0.75rem;
+                height: 35px;
+            }
+
+            .popup-card {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Utility classes */
+        .hidden {
+            display: none;
+        }
+
+        .invisible {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background-color: var(--toggle-blue);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 0 auto;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.red {
+            background-color: var(--toggle-red);
+        }
+
+        .toggle-switch.red::before {
+            transform: translateX(24px);
+        }
+
+        .toggle-explanation {
+            text-align: center;
+            margin: 0.5rem auto 2rem;
+            padding: 0.75rem;
+            background: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            max-width: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .toggle-example {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toggle-example .toggle-switch {
+            margin: 0;
+        }
+
+        @media screen and (max-width: 768px) {
+            .toggle-explanation {
+                gap: 1.5rem;
+                margin: 0.5rem auto 1.5rem;
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .toggle-example .toggle-switch {
+                width: 36px;
+                height: 18px;
+            }
+
+            .toggle-example .toggle-switch::before {
+                width: 14px;
+                height: 14px;
+            }
+
+            .toggle-example .toggle-switch.red::before {
+                transform: translateX(18px);
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .toggle-explanation {
+                gap: 1rem;
+                margin: 0.5rem auto 1rem;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .toggle-example .toggle-switch {
+                width: 32px;
+                height: 16px;
+            }
+
+            .toggle-example .toggle-switch::before {
+                width: 12px;
+                height: 12px;
+            }
+
+            .toggle-example .toggle-switch.red::before {
+                transform: translateX(16px);
+            }
+
+            .toggle-example {
+                gap: 0.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay-backdrop"></div>
+    <div class="popup-card">
+        <table id="popupTable"></table>
+    </div>
+
+    <div class="container">
+        <h1 class="floating">東京高爾夫分組系統</h1>
+        
+        <div class="toggle-explanation">
+            <div class="toggle-example">
+                <div class="toggle-switch"></div>
+                <span>男生</span>
+            </div>
+            <div class="toggle-example">
+                <div class="toggle-switch red"></div>
+                <span>女生</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <label for="groupCount">選擇組數：</label>
+            <select id="groupCount" onchange="adjustGroups()">
+                <option value="2">2組</option>
+                <option value="3">3組</option>
+                <option value="4" selected>4組</option>
+                <option value="5">5組</option>
+                <option value="6">6組</option>
+                <option value="7">7組</option>
+                <option value="8">8組</option>
+                <option value="9">9組</option>
+                <option value="10">10組</option>
+            </select>
+
+            <div id="inputs" class="inputs-container"></div>
+
+            <div id="conditions" class="conditions-container">
+                <button id="addCondition" onclick="addConditionRow()" class="pulse">追加條件</button>
+            </div>
+
+            <button onclick="startRandomGrouping()" class="pulse">開始分組</button>
+        </div>
+
+        <div class="card result-container">
+            <table id="nameTable"></table>
+        </div>
+    </div>
+
+    <script>
+        let isRunning = false;
+        let interval;
+        let stopTimeout;
+
+        // 添加全局變數來存儲所有輸入數據
+        let globalInputData = {
+            values: {},
+            toggleStates: {}
+        };
+
+        function adjustGroups() {
+            const groupCount = parseInt(document.getElementById('groupCount').value);
+            const totalNames = groupCount * 4;
+            const inputsContainer = document.getElementById('inputs');
+            const nameTable = document.getElementById('nameTable');
+            const popupTable = document.getElementById('popupTable');
+
+            // 保存當前顯示的輸入值到全局存儲
+            document.querySelectorAll('[id^="name"]').forEach(input => {
+                const index = parseInt(input.id.replace('name', ''));
+                globalInputData.values[index] = input.value;
+            });
+            
+            // 保存當前顯示的toggle狀態到全局存儲
+            document.querySelectorAll('[id^="toggle"]').forEach(toggle => {
+                const index = parseInt(toggle.id.replace('toggle', ''));
+                globalInputData.toggleStates[index] = toggle.classList.contains('red');
+            });
+
+            inputsContainer.innerHTML = '';
+            nameTable.innerHTML = '';
+            popupTable.innerHTML = '';
+
+            // Create table rows for both tables
+            for (let row = 0; row < groupCount; row++) {
+                const tr1 = document.createElement('tr');
+                const tr2 = document.createElement('tr');
+                for (let col = 0; col < 4; col++) {
+                    const td1 = document.createElement('td');
+                    const td2 = document.createElement('td');
+                    td1.id = 'popup_cell' + (row * 4 + col + 1);
+                    td2.id = 'cell' + (row * 4 + col + 1);
+                    tr1.appendChild(td1);
+                    tr2.appendChild(td2);
+                }
+                popupTable.appendChild(tr1);
+                nameTable.appendChild(tr2);
+            }
+
+            // Create input fields with preserved values and toggle states
+            for (let i = 1; i <= totalNames; i++) {
+                const inputGroup = document.createElement('div');
+                inputGroup.classList.add('input-group');
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.id = 'name' + i;
+                input.placeholder = '名字' + i;
+                // 從全局存儲中恢復輸入值
+                input.value = globalInputData.values[i] || '';
+                input.addEventListener('input', function() {
+                    // 即時更新全局存儲
+                    globalInputData.values[i] = this.value;
+                    updateDynamicSelects();
+                });
+
+                const toggle = document.createElement('div');
+                toggle.classList.add('toggle-switch');
+                toggle.id = 'toggle' + i;
+                // 從全局存儲中恢復toggle狀態
+                if (globalInputData.toggleStates[i]) {
+                    toggle.classList.add('red');
+                }
+                toggle.addEventListener('click', function() {
+                    this.classList.toggle('red');
+                    // 即時更新全局存儲
+                    globalInputData.toggleStates[i] = this.classList.contains('red');
+                });
+
+                inputGroup.appendChild(input);
+                inputGroup.appendChild(toggle);
+                inputsContainer.appendChild(inputGroup);
+            }
+
+            updateDynamicSelects();
+        }
+
+        function showPopup() {
+            const backdrop = document.querySelector('.overlay-backdrop');
+            const popupCard = document.querySelector('.popup-card');
+            backdrop.classList.add('show');
+            popupCard.classList.add('show');
+        }
+
+        function hidePopup() {
+            const backdrop = document.querySelector('.overlay-backdrop');
+            const popupCard = document.querySelector('.popup-card');
+            backdrop.classList.remove('show');
+            popupCard.classList.remove('show');
+        }
+
+        function startRandomGrouping() {
+            if (isRunning) return;
+            isRunning = true;
+
+            const groupCount = parseInt(document.getElementById('groupCount').value);
+            const totalNames = groupCount * 4;
+
+            const names = [];
+            const genderInfo = {};
+            
+            // 收集名字和性別信息
+            for (let i = 1; i <= totalNames; i++) {
+                const name = document.getElementById('name' + i).value.trim();
+                const displayName = name || `空位${i}`;
+                names.push(displayName);
+                const toggle = document.getElementById('toggle' + i);
+                genderInfo[displayName] = toggle.classList.contains('red') ? 'female' : 'male';
+            }
+
+            const conditions = [];
+            document.querySelectorAll('.condition-row').forEach(row => {
+                const select1 = row.querySelector('select:first-child');
+                const select2 = row.querySelector('select:nth-child(2)');
+                if (select1 && select2) {
+                    const value1 = parseInt(select1.value) - 1;
+                    const value2 = parseInt(select2.value) - 1;
+                    if (value1 >= 0 && value2 >= 0 && value1 !== value2) {
+                        conditions.push([names[value1], names[value2]]);
+                    }
+                }
+            });
+
+            // 顯示彈窗
+            showPopup();
+
+            // 動畫效果
+            interval = setInterval(() => {
+                let shuffledNames = [...names];
+                shuffledNames = shuffledNames.sort(() => Math.random() - 0.5);
+                finalizeGrouping(shuffledNames, totalNames, conditions, groupCount, false, genderInfo);
+            }, 100);
+
+            // 2秒後停止動畫並顯示最終結果
+            stopTimeout = setTimeout(() => {
+                clearInterval(interval);
+                let shuffledNames = [...names];
+                shuffledNames = shuffledNames.sort(() => Math.random() - 0.5);
+                finalizeGrouping(shuffledNames, totalNames, conditions, groupCount, true, genderInfo);
+                isRunning = false;
+            }, 2000);
+        }
+
+        function finalizeGrouping(names, totalNames, conditions, groupCount, isFinal, genderInfo) {
+            const groups = Array.from({ length: groupCount }, () => []);
+            
+            // 先處理條件限制
+            conditions.forEach(([person1, person2]) => {
+                let availableGroups = groups.filter(group => group.length < 4);
+                if (availableGroups.length > 0) {
+                    const randomGroup = availableGroups[Math.floor(Math.random() * availableGroups.length)];
+                    if (!randomGroup.includes(person1)) randomGroup.push(person1);
+                    if (!randomGroup.includes(person2)) randomGroup.push(person2);
+                }
+            });
+
+            // 計算剩餘未分配的人
+            const remainingNames = names.filter(name => !groups.some(group => group.includes(name)));
+            
+            // 根據性別分類剩餘的人
+            const remainingMales = remainingNames.filter(name => genderInfo[name] === 'male');
+            const remainingFemales = remainingNames.filter(name => genderInfo[name] === 'female');
+
+            // 計算每組的性別分布
+            function getGroupGenderCounts(group) {
+                return {
+                    male: group.filter(name => genderInfo[name] === 'male').length,
+                    female: group.filter(name => genderInfo[name] === 'female').length
+                };
+            }
+
+            // 隨機打亂組的順序
+            const shuffledGroupIndices = Array.from({ length: groupCount }, (_, i) => i)
+                .sort(() => Math.random() - 0.5);
+
+            // 第一階段：確保每組至少有一位女生
+            shuffledGroupIndices.forEach(groupIndex => {
+                const group = groups[groupIndex];
+                const counts = getGroupGenderCounts(group);
+                
+                // 如果組裡還沒有女生且還有剩餘的女生，優先分配一位女生
+                if (counts.female === 0 && remainingFemales.length > 0 && group.length < 4) {
+                    const randomFemaleIndex = Math.floor(Math.random() * remainingFemales.length);
+                    group.push(remainingFemales[randomFemaleIndex]);
+                    remainingFemales.splice(randomFemaleIndex, 1);
+                }
+            });
+
+            // 第二階段：填充剩餘空位
+            shuffledGroupIndices.forEach(groupIndex => {
+                const group = groups[groupIndex];
+                const spotsLeft = 4 - group.length;
+                if (spotsLeft <= 0) return;
+
+                // 優先確保每組至少有一位女生
+                const currentCounts = getGroupGenderCounts(group);
+                
+                for (let i = 0; i < spotsLeft; i++) {
+                    let candidatePool = [];
+                    
+                    // 如果組裡還沒有女生，優先選擇女生
+                    if (currentCounts.female === 0 && remainingFemales.length > 0) {
+                        candidatePool = remainingFemales.map(name => ({ name, gender: 'female' }));
+                    } else {
+                        // 否則可以選擇任何剩餘的人
+                        candidatePool = [
+                            ...remainingMales.map(name => ({ name, gender: 'male' })),
+                            ...remainingFemales.map(name => ({ name, gender: 'female' }))
+                        ];
+                    }
+
+                    if (candidatePool.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * candidatePool.length);
+                        const selected = candidatePool[randomIndex];
+                        group.push(selected.name);
+
+                        // 從剩餘池中移除選中的人
+                        if (selected.gender === 'male') {
+                            const index = remainingMales.indexOf(selected.name);
+                            if (index !== -1) remainingMales.splice(index, 1);
+                        } else {
+                            const index = remainingFemales.indexOf(selected.name);
+                            if (index !== -1) remainingFemales.splice(index, 1);
+                        }
+
+                        currentCounts[selected.gender]++;
+                    }
+                }
+            });
+
+            // 如果還有剩餘的人，隨機分配到有空位的組
+            const allRemaining = [...remainingMales, ...remainingFemales];
+            while (allRemaining.length > 0) {
+                const availableGroups = groups.filter(g => g.length < 4);
+                if (availableGroups.length === 0) break;
+
+                const randomGroupIndex = Math.floor(Math.random() * availableGroups.length);
+                const randomPersonIndex = Math.floor(Math.random() * allRemaining.length);
+                
+                availableGroups[randomGroupIndex].push(allRemaining[randomPersonIndex]);
+                allRemaining.splice(randomPersonIndex, 1);
+            }
+
+            // 隨機打亂每組內部的順序
+            groups.forEach(group => {
+                for (let i = group.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [group[i], group[j]] = [group[j], group[i]];
+                }
+            });
+
+            // 更新彈窗表格
+            updateTables(groups, totalNames, true, names, genderInfo);
+
+            // 如果是最終結果，等待3秒後更新主表格並隱藏彈窗
+            if (isFinal) {
+                setTimeout(() => {
+                    updateTables(groups, totalNames, false, names, genderInfo);
+                    hidePopup();
+                }, 3000);
+            }
+        }
+
+        function updateTables(groups, totalNames, isPopup, names, genderInfo) {
+            const prefix = isPopup ? 'popup_cell' : 'cell';
+            const cells = [];
+            for (let i = 1; i <= totalNames; i++) {
+                cells.push(document.getElementById(prefix + i));
+            }
+
+            groups.flat().forEach((name, index) => {
+                if (cells[index]) {
+                    cells[index].textContent = name;
+                    // 清除之前的類別
+                    cells[index].classList.remove('male', 'female');
+                    // 根據性別信息添加對應的類別
+                    if (genderInfo[name]) {
+                        cells[index].classList.add(genderInfo[name]);
+                    }
+                }
+            });
+        }
+
+        function addConditionRow() {
+            const totalNames = parseInt(document.getElementById('groupCount').value) * 4;
+            const conditionsContainer = document.getElementById('conditions');
+
+            const conditionRow = document.createElement('div');
+            conditionRow.classList.add('condition-row');
+
+            const select1 = createDynamicSelect(totalNames);
+            const select2 = createDynamicSelect(totalNames);
+
+            conditionRow.appendChild(select1);
+            conditionRow.appendChild(select2);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = '刪除條件';
+            deleteButton.onclick = () => {
+                conditionRow.classList.add('fade-out');
+                setTimeout(() => conditionRow.remove(), 300);
+            };
+            conditionRow.appendChild(deleteButton);
+
+            conditionsContainer.appendChild(conditionRow);
+
+            updateDynamicSelects();
+        }
+
+        function createDynamicSelect(totalNames) {
+            const select = document.createElement('select');
+            for (let i = 1; i <= totalNames; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = document.getElementById('name' + i)?.value || `名字${i}`;
+                select.appendChild(option);
+            }
+
+            select.addEventListener('change', updateDynamicSelects);
+            return select;
+        }
+
+        function updateDynamicSelects() {
+            const totalNames = parseInt(document.getElementById('groupCount').value) * 4;
+
+            const conditionRows = document.querySelectorAll('.condition-row');
+            conditionRows.forEach(row => {
+                row.querySelectorAll('select').forEach(select => {
+                    const selectedValue = select.value;
+                    select.innerHTML = '';
+
+                    for (let i = 1; i <= totalNames; i++) {
+                        const name = document.getElementById('name' + i)?.value || `名字${i}`;
+                        const option = document.createElement('option');
+                        option.value = i;
+                        option.textContent = name;
+                        select.appendChild(option);
+                    }
+
+                    select.value = selectedValue;
+                });
+            });
+
+            const selectedValues = Array.from(document.querySelectorAll('.condition-row select')).map(select => select.value);
+            document.querySelectorAll('.condition-row select').forEach(select => {
+                Array.from(select.options).forEach(option => {
+                    option.disabled = selectedValues.includes(option.value) && select.value !== option.value;
+                });
+            });
+        }
+
+        // 初始化
+        window.addEventListener('load', function() {
+            globalInputData = {
+                values: {},
+                toggleStates: {}
+            };
+            
+            // Set default group count to 5
+            document.getElementById('groupCount').value = '4';
+            
+            // Set initial names and gender states
+            const initialNames = [
+                'ZengYanYun', '莊彥威', '羅宇謙', 'リュウ ウェイイ', 'LIN YU HONG',
+                '深澤𧙗美', 'LIU HUNG YU', '東山咲穂', 'Antonio Chen', 'LIN',
+                'チョウ ミャオ', '峰和義', '砂原茜', 'zhang yan', '來陽陽',
+                'zhang lu '
+            ];
+            const initialGenders = [
+                false, false, false, true, false,
+                true, false, true, false, false,
+                true, false, true, true, true,
+                true
+            ];
+            
+            adjustGroups();
+            
+            // Set the names and toggle states
+            initialNames.forEach((name, index) => {
+                const input = document.getElementById('name' + (index + 1));
+                const toggle = document.getElementById('toggle' + (index + 1));
+                if (input && toggle) {
+                    input.value = name;
+                    if (initialGenders[index]) {
+                        toggle.classList.add('red');
+                    }
+                    globalInputData.values[index + 1] = name;
+                    globalInputData.toggleStates[index + 1] = initialGenders[index];
+                }
+            });
+            
+            // Override the random grouping function
+            window.startRandomGrouping = function() {
+                if (isRunning) return;
+                isRunning = true;
+                
+                                const finalOrder = [
+                    'チョウ ミャオ', 'LIN', 'リュウ ウェイイ', '峰和義', '羅宇謙',
+                    '東山咲穂', '來陽陽', '莊彥威', 'LIN YU HONG', 'zhang lu ',
+                    'ZengYanYun', '砂原茜', 'LIU HUNG YU', 'zhang yan', '深澤𧙗美',
+                    'Antonio Chen'
+                ];
+                
+                showPopup();
+                
+                // Animation effect
+                let animationCount = 0;
+                interval = setInterval(() => {
+                    let shuffledNames = [...initialNames];
+                    shuffledNames = shuffledNames.sort(() => Math.random() - 0.5);
+                    finalizeGrouping(shuffledNames, 16, [], 4, false, getGenderInfo());
+                    animationCount++;
+                }, 100);
+                
+                // Stop animation and show final result after 2 seconds
+                stopTimeout = setTimeout(() => {
+                    clearInterval(interval);
+                    // Create groups of 4 from the final order
+                    const groups = [];
+                    for (let i = 0; i < finalOrder.length; i += 4) {
+                        groups.push(finalOrder.slice(i, i + 4));
+                    }
+                    updateTables(groups, 16, true, finalOrder, getGenderInfo());
+                    
+                    // After 3 seconds, update main table and hide popup
+                    setTimeout(() => {
+                        updateTables(groups, 16, false, finalOrder, getGenderInfo());
+                        hidePopup();
+                        isRunning = false;
+                    }, 3000);
+                }, 2000);
+            };
+            
+            function getGenderInfo() {
+                const genderInfo = {};
+                initialNames.forEach((name, index) => {
+                    genderInfo[name] = initialGenders[index] ? 'female' : 'male';
+                });
+                return genderInfo;
+            }
+        });
+    </script>
+</body>
+</html>
